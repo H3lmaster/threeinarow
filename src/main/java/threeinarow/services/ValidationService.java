@@ -7,6 +7,8 @@ import java.util.stream.IntStream;
 
 import org.springframework.stereotype.Service;
 
+import threeinarow.models.ThreeInARow;
+
 @Service
 public class ValidationService implements IValidationService {
 	
@@ -28,7 +30,7 @@ public class ValidationService implements IValidationService {
 		
 		boolean currentPlayerWon = false;
 		
-		List<Integer> indexesPlayedByCurrentPlayer = IntStream.range(0, positionsPlayed.length).filter(i -> currentPlayer == positionsPlayed[i]).boxed().collect(Collectors.toList());
+		List<Integer> indexesPlayedByCurrentPlayer = IntStream.range(0, positionsPlayed.length).filter(i -> currentPlayer.equalsIgnoreCase(positionsPlayed[i])).boxed().collect(Collectors.toList());
 		
 
 		for (Integer[] match : winningPositions) {
@@ -51,8 +53,8 @@ public class ValidationService implements IValidationService {
 		
 		boolean playerXWon = false, playerOWon = false;
 		
-		List<Integer> indexesPlayedByX = IntStream.range(0, positionsPlayed.length).filter(i -> playerX == positionsPlayed[i]).boxed().collect(Collectors.toList());
-		List<Integer> indexesPlayedByO = IntStream.range(0, positionsPlayed.length).filter(i -> playerO == positionsPlayed[i]).boxed().collect(Collectors.toList());
+		List<Integer> indexesPlayedByX = IntStream.range(0, positionsPlayed.length).filter(i -> playerX.equalsIgnoreCase(positionsPlayed[i])).boxed().collect(Collectors.toList());
+		List<Integer> indexesPlayedByO = IntStream.range(0, positionsPlayed.length).filter(i -> playerO.equalsIgnoreCase(positionsPlayed[i])).boxed().collect(Collectors.toList());
 		
 
 		for (Integer[] match : winningPositions) {
@@ -63,5 +65,21 @@ public class ValidationService implements IValidationService {
 		}
 		
 		return !playerOWon && !playerXWon && (indexesPlayedByO.size() + indexesPlayedByX.size()) == positionsPlayed.length;
+	}
+
+	
+	@Override
+	/**
+	 * Checks if the current player won the game or if there is a draw.
+	 * @param input
+	 * @return
+	 */
+	public ThreeInARow checkResults(ThreeInARow input) {
+		if ( input == null || input.getPositionsPlayed() == null ) return null;
+		
+		input.setCurrentPlayerWon(currentPlayerWon(input.getPositionsPlayed(), input.getCurrentPlayer()));
+		input.setDraw(isDraw(input.getPositionsPlayed()));
+		
+		return input;
 	}
 }
