@@ -1,25 +1,21 @@
 package threeinarow.services;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-public class ValidationService {
+public class ValidationServiceTest {
 
 	private static final String playerX = "X";
 	private static final String playerO = "O";
-	private static final Integer[][] winningPositions = { { 0, 1, 2 }, { 3, 4, 5 }, { 6, 7, 8 }, 
-													  { 0, 3, 6 }, { 1, 4, 7 }, { 2, 5, 8 }, 
-													  { 0, 4, 8 }, { 2, 4, 6 } }; 
+	
+	@Autowired
+	private IValidationService validationService;
 	
 	/**
 	 * Checks if there is only one position played and that the 
@@ -95,13 +91,9 @@ public class ValidationService {
 		positionsPlayed[7] = playerO;
 		positionsPlayed[8] = playerX;
 		
-		List<Integer> indexesPlayedByX = IntStream.range(0, positionsPlayed.length).filter(i -> playerX == positionsPlayed[i]).boxed().collect(Collectors.toList());
-		List<Integer> indexesPlayedByO = IntStream.range(0, positionsPlayed.length).filter(i -> playerO == positionsPlayed[i]).boxed().collect(Collectors.toList());
-		
-		for (Integer[] match : winningPositions) {
-			assertFalse(indexesPlayedByX.containsAll(Arrays.asList(match)));
-			assertFalse(indexesPlayedByO.containsAll(Arrays.asList(match)));
-		}
+		assertTrue(validationService.isDraw(positionsPlayed));
+		assertFalse(validationService.currentPlayerWon(positionsPlayed, playerX));
+		assertFalse(validationService.currentPlayerWon(positionsPlayed, playerO));
 		
 	}
 	
@@ -120,22 +112,10 @@ public class ValidationService {
 		positionsPlayed[7] = playerO;
 		positionsPlayed[4] = playerX;
 		
-		boolean playerXWon = false, playerOWon = false;
-		
-		List<Integer> indexesPlayedByX = IntStream.range(0, positionsPlayed.length).filter(i -> playerX == positionsPlayed[i]).boxed().collect(Collectors.toList());
-		List<Integer> indexesPlayedByO = IntStream.range(0, positionsPlayed.length).filter(i -> playerO == positionsPlayed[i]).boxed().collect(Collectors.toList());
-		
-
-		for (Integer[] match : winningPositions) {
-			playerXWon = indexesPlayedByX.containsAll(Arrays.asList(match));
-			playerOWon = indexesPlayedByO.containsAll(Arrays.asList(match));
-			
-			if ( playerOWon || playerXWon ) break;
-		}
-		
 		// Confirms that player X won the game
-		assertTrue(playerXWon);
-		assertFalse(playerOWon);
+		assertTrue(validationService.currentPlayerWon(positionsPlayed, playerX));
+		assertFalse(validationService.currentPlayerWon(positionsPlayed, playerO));
+	
 	}
 	
 	/**
@@ -152,22 +132,9 @@ public class ValidationService {
 		positionsPlayed[5] = playerX;
 		positionsPlayed[3] = playerO;
 		
-		boolean playerXWon = false, playerOWon = false;
-		
-		List<Integer> indexesPlayedByX = IntStream.range(0, positionsPlayed.length).filter(i -> playerX == positionsPlayed[i]).boxed().collect(Collectors.toList());
-		List<Integer> indexesPlayedByO = IntStream.range(0, positionsPlayed.length).filter(i -> playerO == positionsPlayed[i]).boxed().collect(Collectors.toList());
-		
-
-		for (Integer[] match : winningPositions) {
-			playerXWon = indexesPlayedByX.containsAll(Arrays.asList(match));
-			playerOWon = indexesPlayedByO.containsAll(Arrays.asList(match));
-			
-			if ( playerOWon || playerXWon ) break;
-		}
-		
 		// Confirms that player O won the game
-		assertFalse(playerXWon);
-		assertTrue(playerOWon);
+		assertTrue(validationService.currentPlayerWon(positionsPlayed, playerO));
+		assertFalse(validationService.currentPlayerWon(positionsPlayed, playerX));
 		
 	}
 	
